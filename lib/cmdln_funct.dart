@@ -7,15 +7,15 @@ import 'quiz_objects.dart';
 import 'dart:io';
 import 'dart:math';
 
-void main() {
-  Future<List<Question>> b = getBank();
-  List<Question> questionBank = new List<Question>();
-  b.then((questionBank) {
-    stdout.write("${questionBank.length} questions retrieved");
-    Quiz q = quizLength(questionBank);
-    displayQuiz(q);
-  });
-}
+//void main() {
+//  Future<List<Question>> b = getBank();
+//  List<Question> questionBank = new List<Question>();
+//  b.then((questionBank) {
+//    stdout.write("${questionBank.length} questions retrieved");
+//    Quiz q = quizLength(questionBank);
+//    displayQuiz(q);
+//  });
+//}
 
 /// quizLength returns Quiz object based on the length the user specified
 Quiz quizLength(List<Question> questions) {

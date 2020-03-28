@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'network.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,42 +25,79 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+class LoginData {
+  String username = "";
+  String password = "";
+}
+
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-
-      _counter++;
-    });
-  }
+  LoginData _loginData = new LoginData();
+  GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+      body: Container (
+        padding: EdgeInsets.all(50.0),
+        child: Form(
+          key: this._formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                keyboardType : TextInputType.text,
+                validator : (String inValue){
+                  if (inValue.length == 0){
+                    return "Please enter username";
+                  }
+                  return null;
+                },
+                onSaved: (String inValue){
+                  this._loginData.username = inValue;
+                },
+                decoration: InputDecoration(
+                  // hintText: "guest",
+                  labelText: "Username"
+                ),
+              ),
+              TextFormField(
+                obscureText: true,
+                validator: (String inValue){
+
+                },
+                onSaved : (String inValue){
+                  this._loginData.password = inValue;
+                },
+                decoration: InputDecoration(
+                  hintText: "Password",
+                  labelText: "Password"
+                ),
+              ),
+              RaisedButton(
+                child: Text("Log in!"),
+                onPressed: (){
+                  if(_formKey.currentState.validate()) {
+                    _formKey.currentState.save();
+                    //connectionhere
+                    Future<dynamic> connectedF = getBank(_loginData.username, _loginData.password);
+                    dynamic conn = "";
+                    connectedF.then((conn){
+                      //if(conn["response"] == "false"){
+
+                      //}
+                    });
+                    print("Username: ${_loginData.username}");
+                    print("Password: ${_loginData.password}");
+                  }
+                }
+              )
+            ]
+          )
+        )
+      )
     );
   }
 }
+

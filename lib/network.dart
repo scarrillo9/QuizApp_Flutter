@@ -53,18 +53,18 @@ class Jquestion {
 
 /// NETWORKING METHODS ///
 List<Question> qBank;
-final String URL_BASE = 'http://www.cs.utep.edu/cheon/cs4381/homework/quiz/';
+final String URL_BASE = 'http://www.cs.utep.edu/cheon/cs4381/homework/quiz/post.php';
 
 /// getBank method calls the getConnection method to get all questions
 /// and returns the list of questions (question bank)
-Future<List<Question>> getBank() async {
+Future<List<Question>> getBank(String username, String password) async {
   String quizName = '0';
   List<Question> temp = List<Question>();
   List<Question> real = List<Question>();
   for(int i = 1; i < 9; i++){
     String curr = i.toString();
 
-    Future<List<Question>> list = getConnection(quizName+curr);
+    Future<List<Question>> list = getConnection(username, password, quizName+curr);
     await list.then((temp){
       if(real.isEmpty) {
         real = temp;
@@ -80,12 +80,14 @@ Future<List<Question>> getBank() async {
 /// getConnection method establishes connection and receives json string
 /// to parse and create Question objects.
 /// Returns list of questions for the quiz being requested
-Future<List<Question>> getConnection(String quizName) async {
-  var url = '$URL_BASE?quiz=quiz$quizName';
-  var response = await http.get(url);
+Future<List<Question>> getConnection(String username, String password, String quizName) async {
+  var url = '$URL_BASE';
+  var body = {"user": '$username', "pin": '$password', "quiz": '$quizName'};
+  var response = await http.post(url, body: body);
   var res = json.decode(response.body);
-  var quiz = JsonQuiz.fromJson(res);
 
+  var quiz = JsonQuiz.fromJson(res);
+  print(res);
   //print('Response status: ${response.statusCode}');
   //print(quiz.quiz.question.elementAt(0).stem);
   qBank = new List<Question>();
