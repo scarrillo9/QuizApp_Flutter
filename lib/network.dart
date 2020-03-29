@@ -61,6 +61,7 @@ Future<List<Question>> getBank(String username, String password) async {
   String quizName = '0';
   List<Question> temp = List<Question>();
   List<Question> real = List<Question>();
+
   for(int i = 1; i < 9; i++){
     String curr = i.toString();
 
@@ -81,13 +82,13 @@ Future<List<Question>> getBank(String username, String password) async {
 /// to parse and create Question objects.
 /// Returns list of questions for the quiz being requested
 Future<List<Question>> getConnection(String username, String password, String quizName) async {
-  var url = '$URL_BASE';
-  var body = {"user": '$username', "pin": '$password', "quiz": '$quizName'};
+  var url = URL_BASE;
+  var body = '{"user" : "$username", "pin" : "$password", "quiz" : "quiz$quizName"}';
   var response = await http.post(url, body: body);
   var res = json.decode(response.body);
 
   var quiz = JsonQuiz.fromJson(res);
-  print(res);
+
   //print('Response status: ${response.statusCode}');
   //print(quiz.quiz.question.elementAt(0).stem);
   qBank = new List<Question>();

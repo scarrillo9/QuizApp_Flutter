@@ -80,6 +80,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: (){
                   if(_formKey.currentState.validate()) {
                     _formKey.currentState.save();
+
+                    print("Username: ${_loginData.username}");
+                    print("Password: ${_loginData.password}");
+
                     //connectionhere
                     Future<dynamic> connectedF = getBank(_loginData.username, _loginData.password);
                     dynamic conn = "";
@@ -88,8 +92,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       //}
                     });
-                    print("Username: ${_loginData.username}");
-                    print("Password: ${_loginData.password}");
                   }
                 }
               )
