@@ -18,36 +18,18 @@ import 'dart:math';
 //}
 
 /// quizLength returns Quiz object based on the length the user specified
-Quiz quizLength(List<Question> questions) {
+Quiz quizLength(List<Question> questions, [int numberOfQuestions = 5]) {
+
+  print(questions.length);
   List<Question> newList = new List<Question>();
   var r = new Random();
-  bool invalid = true;
-
-  while(invalid) {
-    try {
-      stdout.write("\n\nHow many questions in your quiz? [Default = 5]: ");
-      String quizCount = stdin.readLineSync();
-
-      if(quizCount == ""){
-        questions.shuffle(r);
-        for(int i = 0; i < 5; i++){
-          newList.add(questions.elementAt(i));
-        }
-        invalid = false;
+  print(questions.elementAt(0).question);
+  questions.shuffle(r);
+  for(int i = 0; i < numberOfQuestions; i++){
+    print(i);
+    newList.add(questions.elementAt(i));
       }
-      else {
-        int intCount = int.parse(quizCount);
-        invalid = false;
-        questions.shuffle(r);
-        for(int i = 0; i < intCount; i++){
-          newList.add(questions.elementAt(i));
-        }
-      }
-    } catch (e) {
-      stdout.write("Invalid input. Try again");
-      invalid = true;
-    }
-  }
+
   return createQuiz(newList);
 }
 

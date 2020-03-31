@@ -86,7 +86,6 @@ Future<List<Question>> getConnection(String username, String password, String qu
   var body = '{"user" : "$username", "pin" : "$password", "quiz" : "quiz$quizName"}';
   var response = await http.post(url, body: body);
   var res = json.decode(response.body);
-
   var quiz = JsonQuiz.fromJson(res);
 
   //print('Response status: ${response.statusCode}');
