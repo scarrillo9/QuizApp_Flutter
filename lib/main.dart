@@ -180,8 +180,23 @@ class _TakeQuiz extends State<TakeQuiz> {
           });
         break;
       case 1:
-        if (widget.quiz.questions.any((f) => !f.answered)) print("Submit");
-
+        if (widget.quiz.questions.any((f) => !f.answered)){
+          bool found = false;
+          int i = 0;
+          while(!found){
+            if(!widget.quiz.questions.elementAt(i).answered){
+              found = true;
+              currentQuestion = i;
+            }
+            i++;
+          }
+        }
+        else{
+          setState(() {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => GradeQuiz(widget.quiz)));
+          });
+        }
         break;
       case 2:
         if (currentQuestion != widget.quizLength - 1)
@@ -309,7 +324,7 @@ class _TakeQuiz extends State<TakeQuiz> {
 }
 
 class reviewSession extends StatefulWidget {
-  final Quiz quiz;
+  final Iterable<Question> quiz;
   final int quizLength;
 
   const reviewSession({Key key, this.quiz, this.quizLength}) : super(key: key);
@@ -327,7 +342,7 @@ class _reviewSession extends State<reviewSession>{
     return options.asMap().entries.map((entry) {
       return CheckboxListTile(
         title: Text(entry.value),
-        value: widget.quiz.questions[currentQuestion].rightAnswer,
+        value: widget.quiz.elementAt(currentQuestion).rightAnswer,
         controlAffinity: ListTileControlAffinity.leading,
         onChanged: null,
       );
@@ -340,13 +355,13 @@ class _reviewSession extends State<reviewSession>{
         //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Center(
-            child: Text(widget.quiz.questions[currentQuestion].question),
+            child: Text(widget.quiz.elementAt(currentQuestion).question),
           ),
           Text(
-              'Given Answer: ${widget.quiz.questions[currentQuestion].providedAnswer}'
+              'Given Answer: ${widget.quiz.elementAt(currentQuestion).providedAnswer}'
           ),
           const SizedBox(height: 10,),
-          Text('Actual Answer: ${widget.quiz.questions[currentQuestion].rightAnswer}')
+          Text('Actual Answer: ${widget.quiz.elementAt(currentQuestion).rightAnswer}')
         ],
       ),
     );
@@ -358,11 +373,11 @@ class _reviewSession extends State<reviewSession>{
         //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Center(
-            child: Text(widget.quiz.questions[currentQuestion].question),
+            child: Text(widget.quiz.elementAt(currentQuestion).question),
           ),
           Column(
             children: _buildAnswers(
-                widget.quiz.questions[currentQuestion].options),
+                widget.quiz.elementAt(currentQuestion).options),
           ),
         ],
       ),
@@ -393,9 +408,9 @@ class _reviewSession extends State<reviewSession>{
   }
 
   Widget _buildQuestion(){
-    if(widget.quiz.questions[currentQuestion] is FillInBlankQuestion)
+    if(widget.quiz.elementAt(currentQuestion) is FillInBlankQuestion)
       return fillTheBlank();
-    else if(widget.quiz.questions[currentQuestion] is MultipleChoiceQuestion)
+    else if(widget.quiz.elementAt(currentQuestion) is MultipleChoiceQuestion)
       return multipleChoice();
   }
 
@@ -405,7 +420,6 @@ class _reviewSession extends State<reviewSession>{
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         title: Text('${currentQuestion + 1} / ${widget.quizLength}'),
@@ -428,6 +442,51 @@ class _reviewSession extends State<reviewSession>{
         currentIndex: 1,
         onTap: _onItemTapped,
       ),
+    );
+  }
+}
+
+class GradeQuiz extends StatelessWidget {
+  GradeQuiz(this.quiz){
+    this.qc = quiz.questions.fold(0, (qc, f) => qc + (f.correct ? 1 :0));
+    this.score = (qc / quiz.length) * 100;
+  }
+  
+  final Quiz quiz;
+  double score;
+  int qc;
+  
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: AppBar(
+        title: Text("Graded Quiz")
+      ),
+      body: Center(
+        child: Column(
+          children: <Widget> [
+            Text(
+              "Quiz Grade: ${score}%",
+              style: TextStyle(fontSize: 25)
+            ),
+            Text(
+              "${qc} / ${quiz.length} correct"
+            ),
+            const SizedBox(height: 30),
+            RaisedButton(
+              child: Text(
+                "Review Questions",
+                style: TextStyle(fontSize: 20),
+              ),
+              onPressed: (){
+                Iterable<Question> wrongQ = quiz.questions.where((f) => !f.correct);
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => reviewSession(quiz: wrongQ, quizLength: quiz.length)));
+              },
+            ),
+          ]
+        )
+      )
     );
   }
 }
