@@ -384,6 +384,7 @@ class GradeQuiz extends StatelessWidget {
 
 /// reviewSession page takes in a List of the questions that were answered wrong
 /// and displays them, called by GradeQuiz page
+/// throws error when trying to review multiple choice questions
 class reviewSession extends StatefulWidget {
   final Quiz quiz;
   final int quizLength;
