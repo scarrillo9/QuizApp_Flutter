@@ -169,7 +169,6 @@ class TakeQuiz extends StatefulWidget {
 class _TakeQuiz extends State<TakeQuiz> {
   int currentQuestion = 0;
   dynamic answerGiven;
-  int selectedAnswer;
 
   void _onItemTapped(int index) {
     switch (index) {
@@ -229,7 +228,6 @@ class _TakeQuiz extends State<TakeQuiz> {
   }
 
   Widget _buildQuestion(){
-    print(widget.quiz.questions[currentQuestion].providedAnswer);
     if(widget.quiz.questions[currentQuestion] is FillInBlankQuestion)
       return fillTheBlank();
     else if(widget.quiz.questions[currentQuestion] is MultipleChoiceQuestion)
@@ -308,6 +306,134 @@ class _TakeQuiz extends State<TakeQuiz> {
       ),
     );
   }
+}
+
+class reviewSession extends StatefulWidget {
+  final Quiz quiz;
+  final int quizLength;
+
+  const reviewSession({Key key, this.quiz, this.quizLength}) : super(key: key);
+
+  @override
+  _reviewSession createState() => _reviewSession();
+}
+
+
+class _reviewSession extends State<reviewSession>{
+  int currentQuestion = 0;
+  dynamic answerGiven;
+
+  List<Widget> _buildAnswers(List<dynamic> options) {
+    return options.asMap().entries.map((entry) {
+      return CheckboxListTile(
+        title: Text(entry.value),
+        value: widget.quiz.questions[currentQuestion].rightAnswer,
+        controlAffinity: ListTileControlAffinity.leading,
+        onChanged: null,
+      );
+    }).toList();
+  }
+
+  Container fillTheBlank() {
+    return Container(
+      child: Column(
+        //mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Center(
+            child: Text(widget.quiz.questions[currentQuestion].question),
+          ),
+          Text(
+            'Given Answer: ${widget.quiz.questions[currentQuestion].providedAnswer}'
+          ),
+          const SizedBox(height: 10,),
+          Text('Actual Answer: ${widget.quiz.questions[currentQuestion].rightAnswer}')
+        ],
+      ),
+    );
+  }
+
+  Container multipleChoice() {
+    return Container(
+      child: Column(
+        //mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Center(
+            child: Text(widget.quiz.questions[currentQuestion].question),
+          ),
+          Column(
+            children: _buildAnswers(
+                widget.quiz.questions[currentQuestion].options),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onItemTapped(int index) {
+    switch (index) {
+      case 0:
+        if (currentQuestion != 0)
+          setState(() {
+            currentQuestion--;
+            answerGiven = "";
+          });
+        break;
+      case 1:
+        _returnToLanding(context);
+        break;
+      case 2:
+        if (currentQuestion != widget.quizLength - 1)
+          setState(() {
+            currentQuestion++;
+            answerGiven = "";
+          });
+        //print(widget.quiz.questions[currentQuestion].runtimeType.toString());
+        break;
+    }
+  }
+
+  Widget _buildQuestion(){
+    if(widget.quiz.questions[currentQuestion] is FillInBlankQuestion)
+      return fillTheBlank();
+    else if(widget.quiz.questions[currentQuestion] is MultipleChoiceQuestion)
+      return multipleChoice();
+  }
+  
+   _returnToLanding(BuildContext context){
+    Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${currentQuestion + 1} / ${widget.quizLength}'),
+      ),
+      body: Center(
+        child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child:   _buildQuestion()
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+              title: Text("Previous"), icon: Icon(Icons.keyboard_arrow_left)),
+          BottomNavigationBarItem(
+              title: Text("Exit"), icon: Icon(Icons.exit_to_app)),
+          BottomNavigationBarItem(
+              title: Text("Next"), icon: Icon(Icons.keyboard_arrow_right)),
+        ],
+        currentIndex: 1,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+
+
+
 }
 
 
