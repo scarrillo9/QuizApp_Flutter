@@ -324,7 +324,7 @@ class _TakeQuiz extends State<TakeQuiz> {
 }
 
 class reviewSession extends StatefulWidget {
-  final Iterable<Question> quiz;
+  final Quiz quiz;
   final int quizLength;
 
   const reviewSession({Key key, this.quiz, this.quizLength}) : super(key: key);
@@ -342,7 +342,7 @@ class _reviewSession extends State<reviewSession>{
     return options.asMap().entries.map((entry) {
       return CheckboxListTile(
         title: Text(entry.value),
-        value: widget.quiz.elementAt(currentQuestion).rightAnswer,
+        value: widget.quiz.questions[currentQuestion].rightAnswer,
         controlAffinity: ListTileControlAffinity.leading,
         onChanged: null,
       );
@@ -355,13 +355,13 @@ class _reviewSession extends State<reviewSession>{
         //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Center(
-            child: Text(widget.quiz.elementAt(currentQuestion).question),
+            child: Text(widget.quiz.questions[currentQuestion].question),
           ),
           Text(
-              'Given Answer: ${widget.quiz.elementAt(currentQuestion).providedAnswer}'
+              'Given Answer: ${widget.quiz.questions[currentQuestion].providedAnswer}'
           ),
           const SizedBox(height: 10,),
-          Text('Actual Answer: ${widget.quiz.elementAt(currentQuestion).rightAnswer}')
+          Text('Actual Answer: ${widget.quiz.questions[currentQuestion].rightAnswer}')
         ],
       ),
     );
@@ -373,11 +373,11 @@ class _reviewSession extends State<reviewSession>{
         //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Center(
-            child: Text(widget.quiz.elementAt(currentQuestion).question),
+            child: Text(widget.quiz.questions[currentQuestion].question),
           ),
           Column(
             children: _buildAnswers(
-                widget.quiz.elementAt(currentQuestion).options),
+                widget.quiz.questions[currentQuestion].options),
           ),
         ],
       ),
@@ -408,9 +408,9 @@ class _reviewSession extends State<reviewSession>{
   }
 
   Widget _buildQuestion(){
-    if(widget.quiz.elementAt(currentQuestion) is FillInBlankQuestion)
+    if(widget.quiz.questions[currentQuestion] is FillInBlankQuestion)
       return fillTheBlank();
-    else if(widget.quiz.elementAt(currentQuestion) is MultipleChoiceQuestion)
+    else if(widget.quiz.questions[currentQuestion] is MultipleChoiceQuestion)
       return multipleChoice();
   }
 
@@ -480,8 +480,13 @@ class GradeQuiz extends StatelessWidget {
               ),
               onPressed: (){
                 Iterable<Question> wrongQ = quiz.questions.where((f) => !f.correct);
+                List<Question> newlist = new List<Question>();
+                wrongQ.forEach((f) {
+                  newlist.add(f);
+                });
+                Quiz wrong = createQuiz(newlist);
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => reviewSession(quiz: wrongQ, quizLength: quiz.length)));
+                    builder: (context) => reviewSession(quiz: wrong, quizLength: quiz.length)));
               },
             ),
           ]
