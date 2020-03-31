@@ -38,13 +38,17 @@ class Jquestion {
   String stem;
   dynamic answer;
   List<String> option;
+  String figure;
 
-  Jquestion({this.type, this.stem, this.answer, this.option});
+  Jquestion({this.type, this.stem, this.answer, this.option, this.figure});
 
   Jquestion.fromJson(Map<String, dynamic> json) {
     type = json['type'];
     stem = json['stem'];
     answer = json['answer'];
+    if(json['figure'] != null){
+      figure = json['figure'];
+    }
     if(json['option'] != null) {
       option = json['option'].cast<String>();
     }
@@ -101,27 +105,13 @@ Future<List<Question>> getConnection(String username, String password, String qu
 /// based on if the question is MC or Fill-in
 void jsonToObject(Jquestion q){
   if(q.type == 1) {
-    MultipleChoiceQuestion mq = new MultipleChoiceQuestion(q.stem, q.answer, q.option);
+    MultipleChoiceQuestion mq = new MultipleChoiceQuestion(q.stem, q.answer, "", q.option);
     qBank.add(mq);
     //print(mq.question);
   }
   else if(q.type == 2) {
-    FillInBlankQuestion fq = new FillInBlankQuestion(q.stem, q.answer);
+    FillInBlankQuestion fq = new FillInBlankQuestion(q.stem, q.answer, "");
     qBank.add(fq);
     //print(fq.question);
   }
 }
-
-////JSON STYLE
-//response body: {response:, quiz: {name:, question: [{q1}, {q2}]}]
-//
-//q1:
-//type: 1 (multiple choice)
-//stem: question
-//answer: int
-//option: []
-//
-//q2
-//type: 2 (fill-in blank)
-//stem: question
-//answer: []

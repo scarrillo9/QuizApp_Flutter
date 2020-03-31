@@ -19,11 +19,13 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// LoginData object to hold the information given by the user
 class LoginData {
   String username = "";
   String password = "";
 }
 
+/// MyHomePage is the main page and the one with the Login
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -94,6 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 ]))));
   }
 
+  /// Scaffold containing the landing page, called from the MyHomePage
+  /// once Login is successful
+  /// Handles creating the quiz based on length given by user
   Scaffold landingPage() {
     return Scaffold(
       appBar: AppBar(
@@ -151,11 +156,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-//____________ Here we will write other stateful widgets
-
 }
 
+/// TakeQuiz is the screen where the quiz will be answered, called from
+/// the Landing page
 class TakeQuiz extends StatefulWidget {
   final Quiz quiz;
   final int quizLength;
@@ -186,7 +190,9 @@ class _TakeQuiz extends State<TakeQuiz> {
           while(!found){
             if(!widget.quiz.questions.elementAt(i).answered){
               found = true;
-              currentQuestion = i;
+              setState(() {
+                currentQuestion = i;
+              });
             }
             i++;
           }
@@ -323,6 +329,61 @@ class _TakeQuiz extends State<TakeQuiz> {
   }
 }
 
+/// GradeQuiz page takes in the quiz answered to get the score based on what
+/// questions the user got correctly
+/// Called from the TakeQuiz page, and calls the reviewSession page
+class GradeQuiz extends StatelessWidget {
+  GradeQuiz(this.quiz){
+    this.qc = quiz.questions.fold(0, (qc, f) => qc + (f.correct ? 1 :0));
+    this.score = (qc / quiz.length) * 100;
+  }
+
+  final Quiz quiz;
+  double score;
+  int qc;
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        appBar: AppBar(
+            title: Text("Graded Quiz")
+        ),
+        body: Center(
+            child: Column(
+                children: <Widget> [
+                  Text(
+                      "Quiz Grade: ${score}%",
+                      style: TextStyle(fontSize: 25)
+                  ),
+                  Text(
+                      "${qc} / ${quiz.length} correct"
+                  ),
+                  const SizedBox(height: 30),
+                  RaisedButton(
+                    child: Text(
+                      "Review Questions",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    onPressed: (){
+                      Iterable<Question> wrongQ = quiz.questions.where((f) => !f.correct);
+                      List<Question> newlist = new List<Question>();
+                      wrongQ.forEach((f) {
+                        newlist.add(f);
+                      });
+                      Quiz wrong = createQuiz(newlist);
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => reviewSession(quiz: wrong, quizLength: quiz.length)));
+                    },
+                  ),
+                ]
+            )
+        )
+    );
+  }
+}
+
+/// reviewSession page takes in a List of the questions that were answered wrong
+/// and displays them, called by GradeQuiz page
 class reviewSession extends StatefulWidget {
   final Quiz quiz;
   final int quizLength;
@@ -442,56 +503,6 @@ class _reviewSession extends State<reviewSession>{
         currentIndex: 1,
         onTap: _onItemTapped,
       ),
-    );
-  }
-}
-
-class GradeQuiz extends StatelessWidget {
-  GradeQuiz(this.quiz){
-    this.qc = quiz.questions.fold(0, (qc, f) => qc + (f.correct ? 1 :0));
-    this.score = (qc / quiz.length) * 100;
-  }
-  
-  final Quiz quiz;
-  double score;
-  int qc;
-  
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text("Graded Quiz")
-      ),
-      body: Center(
-        child: Column(
-          children: <Widget> [
-            Text(
-              "Quiz Grade: ${score}%",
-              style: TextStyle(fontSize: 25)
-            ),
-            Text(
-              "${qc} / ${quiz.length} correct"
-            ),
-            const SizedBox(height: 30),
-            RaisedButton(
-              child: Text(
-                "Review Questions",
-                style: TextStyle(fontSize: 20),
-              ),
-              onPressed: (){
-                Iterable<Question> wrongQ = quiz.questions.where((f) => !f.correct);
-                List<Question> newlist = new List<Question>();
-                wrongQ.forEach((f) {
-                  newlist.add(f);
-                });
-                Quiz wrong = createQuiz(newlist);
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => reviewSession(quiz: wrong, quizLength: quiz.length)));
-              },
-            ),
-          ]
-        )
-      )
     );
   }
 }

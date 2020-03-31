@@ -13,14 +13,15 @@ class Question {
   List<String> options;
   bool correct = false;
   bool answered = false;
-  Question(this.question, this.rightAnswer);
+  String figure;
+  Question(this.question, this.rightAnswer, this.figure);
 
   void submitAnswer(dynamic answer){}
 }
 
 class MultipleChoiceQuestion extends Question {
   List<String> options;
-  MultipleChoiceQuestion(String question, rightAnswer, this.options) : super(question, rightAnswer);
+  MultipleChoiceQuestion(String question, rightAnswer, figure, this.options) : super(question, rightAnswer, figure);
 
   @override
   void submitAnswer(dynamic answer){
@@ -36,7 +37,7 @@ class MultipleChoiceQuestion extends Question {
 }
 
 class FillInBlankQuestion extends Question {
-  FillInBlankQuestion(String question, rightAnswer) : super(question, rightAnswer);
+  FillInBlankQuestion(String question, rightAnswer, figure) : super(question, rightAnswer, figure);
 
   @override
   void submitAnswer(dynamic answer){
