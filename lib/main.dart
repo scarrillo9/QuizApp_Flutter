@@ -181,8 +181,22 @@ class _TakeQuiz extends State<TakeQuiz> {
           });
         break;
       case 1:
-        if (widget.quiz.questions.any((f) => !f.answered)) print("Submit");
-
+        if (widget.quiz.questions.any((f) => !f.answered)){
+          int i = 0;
+          bool found = false;
+          while(!found){
+            if(!widget.quiz.questions.elementAt(i).answered){
+              currentQuestion = i;
+              answerGiven = "";
+              found = true;
+            }
+            i++;
+          }
+        }
+        else {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => GradeQuiz(widget.quiz)));
+        }
         break;
       case 2:
         if (currentQuestion != widget.quizLength - 1)
@@ -306,6 +320,52 @@ class _TakeQuiz extends State<TakeQuiz> {
           )
         ],
       ),
+    );
+  }
+}
+
+class GradeQuiz extends StatelessWidget {
+  final Quiz quiz;
+  double score;
+  int qc;
+
+  GradeQuiz(this.quiz){
+    List<Question> nq = quiz.questions;
+    this.qc = nq.fold(0, (qc, f) => qc + (f.correct ? 1 :0));
+    this.score = (qc / quiz.length) * 100;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: AppBar(
+        title: Text("Quiz Graded"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget> [
+            Text(
+              "Quiz Score: ${score}%",
+              style: TextStyle(fontSize: 25)
+            ),
+            Text("$qc / ${quiz.length} questions correct"),
+            const SizedBox(height: 30),
+            RaisedButton(
+              onPressed: () {
+                //review
+                //Iterable<Question> wrongQ = quiz.questions.where((f) => !f.correct);
+                //Navigator.of(context).push(MaterialPageRoute(
+                  //  builder: (context) => reviewSession(quiz: wrongQ)));
+              },
+              child: Text(
+                  'Review Wrong Questions',
+                  style: TextStyle(fontSize: 20)
+              ),
+            )
+          ]
+        )
+      )
     );
   }
 }
